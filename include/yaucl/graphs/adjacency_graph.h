@@ -83,10 +83,10 @@ struct adjacency_graph {
         roaring::Roaring64Map visited;
         std::vector<size_t> Stack;
         if (start_from > 0) {
-            topologicalSortUtil(start_from, visited, Stack);
+            topologicalSortUtil(static_cast<size_t>(start_from), visited, Stack);
         }
         for (size_t i = 0; i < V_size; i++)
-            if (!visited.contains(i))
+            if (!visited.contains(static_cast<uint64_t>(i)))
                 topologicalSortUtil(i, visited, Stack);
         std::vector<size_t> time(V_size, -1);
 //        std::unordered_map<size_t, std::vector<size_t>> time_to_node;
@@ -127,12 +127,12 @@ struct adjacency_graph {
                         std::vector<size_t>& Stack)
     {
         // Mark the current node as visited.
-        visited.add(v);
+        visited.add(static_cast<uint64_t>(v));
 
         // Recur for all the vertices adjacent to this vertex
         for (size_t edge_id: nodes.at(v)) {
             size_t i = edge_ids.at(edge_id).second;
-            if (!visited.contains(i))
+            if (!visited.contains(static_cast<uint64_t>(i)))
                 topologicalSortUtil(i, visited, Stack);
         }
 

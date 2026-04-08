@@ -6,7 +6,7 @@
 
 
 void RoaringBitmapWrapper::addRange(size_t incL, size_t incU) {
-    map.addRangeClosed(incL, incU);
+    map.addRangeClosed(static_cast<uint64_t>(incL), static_cast<uint64_t>(incU));
 }
 
 bool RoaringBitmapWrapper::operator==(const RoaringBitmapWrapper &rhs) const {
@@ -34,11 +34,11 @@ bool RoaringBitmapWrapper::operator>=(const RoaringBitmapWrapper &rhs) const {
 }
 
 void RoaringBitmapWrapper::add(size_t x) {
-    map.add(x);
+    map.add(static_cast<uint64_t>(x));
 }
 
 bool RoaringBitmapWrapper::contains(size_t x) const {
-    return map.contains(x);
+    return map.contains(static_cast<uint64_t>(x));
 }
 
 size_t RoaringBitmapWrapper::size() const { return map.cardinality(); }
@@ -82,7 +82,7 @@ RoaringBitmapWrapper::RoaringBitmapWrapper(size_t singleton) : RoaringBitmapWrap
 }
 
 RoaringBitmapWrapper::RoaringBitmapWrapper(size_t min, size_t max) : RoaringBitmapWrapper() {
-    map.addRange(min, max);
+    map.addRange(static_cast<uint64_t>(min), static_cast<uint64_t>(max));
 }
 
 const roaring::Roaring64MapSetBitForwardIterator RoaringBitmapWrapper::begin() const {
@@ -103,7 +103,7 @@ size_t RoaringBitmapWrapper::hashCode() const {
     size_t seed = 13;
     for (size_t i = 0; i<N; i++)
         seed = yaucl::hashing::combine(seed, ans[i]);
-    delete ans;
+    delete[] ans;
     return seed;
 }
 
@@ -119,11 +119,11 @@ void RoaringBitmapWrapper::clear() {
 }
 
 RoaringBitmapWrapper::RoaringBitmapWrapper(const std::vector<size_t> &v) {
-    map.addMany(v.size(), &v.at(0));
+    for (auto x : v) map.add(static_cast<uint64_t>(x));
 }
 
 void RoaringBitmapWrapper::addAll(const std::vector<size_t> &v) {
-    map.addMany(v.size(), &v.at(0));
+    for (auto x : v) map.add(static_cast<uint64_t>(x));
 }
 
 bool RoaringBitmapWrapper::empty() const {

@@ -47,7 +47,12 @@
 
 // C++ program for the above approach
 
-#include <bits/stdc++.h>
+#include <iterator>
+#include <algorithm>
+#include <vector>
+#include <set>
+#include <map>
+#include <stack>
 
 template <typename T>
 struct QNode2 {
@@ -114,8 +119,8 @@ class FlexibleFA : public FlexibleGraph<NodeElement, EdgeLabel> {
 public:
     roaring::Roaring64Map initial_nodes,  final_nodes, removed_nodes, removed_edges;
 
-    void removeNode(size_t x) { removed_nodes.add(x); }
-    void removeEdge(size_t x) { removed_edges.add(x); }
+    void removeNode(size_t x) { removed_nodes.add(static_cast<uint64_t>(x)); }
+    void removeEdge(size_t x) { removed_edges.add(static_cast<uint64_t>(x)); }
 
     ~FlexibleFA() {
         initial_nodes.clear();
@@ -144,7 +149,7 @@ public:
             std::swap(cp, Q.front->data);
             Q.pop();
             if ((cp.second.size() <= max_len)) {
-                if (final_nodes.contains(cp.first) && (cp.second.size() > 0) /*&& (Arg[cp.first] < max_per_limit)*/) {
+                if (final_nodes.contains(static_cast<uint64_t>(cp.first)) && (cp.second.size() > 0) /*&& (Arg[cp.first] < max_per_limit)*/) {
 //                    Arg[cp.first]++;
 //                    EL.emplace(cp.second);
                     if (min_len <= cp.second.size()) {
@@ -197,7 +202,7 @@ public:
             std::pair<size_t, std::vector<EdgeLabel>> cp = Q.front();
             Q.pop();
             if ((cp.second.size() <= limitSize)) {
-                if (final_nodes.contains(cp.first) && (cp.second.size() > 0) /*&& (Arg[cp.first] < max_per_limit)*/) {
+                if (final_nodes.contains(static_cast<uint64_t>(cp.first)) && (cp.second.size() > 0) /*&& (Arg[cp.first] < max_per_limit)*/) {
                     //Arg[cp.first]++;
                     EL.emplace(cp.second);
                 }
@@ -214,7 +219,7 @@ public:
     std::vector<size_t> getNodeIds() const  {
         std::vector<size_t> result;
         for (size_t id = 0, N = FlexibleGraph<NodeElement, EdgeLabel>::vertexSize(); id < N; id++) {
-            if (!removed_nodes.contains(id))
+            if (!removed_nodes.contains(static_cast<uint64_t>(id)))
                 result.emplace_back(id);
         }
         return result;
@@ -226,7 +231,7 @@ public:
         std::vector<size_t> result;
         for (size_t id = 0, N = FlexibleGraph<NodeElement, EdgeLabel>::edgeSize(); id < N; id++) {
             auto cp = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(id);
-            if ((!removed_nodes.contains(cp.first)) && (!removed_nodes.contains(cp.second)) && (!removed_edges.contains(id)))
+            if ((!removed_nodes.contains(static_cast<uint64_t>(cp.first))) && (!removed_nodes.contains(static_cast<uint64_t>(cp.second))) && (!removed_edges.contains(static_cast<uint64_t>(id))))
                 result.emplace_back(id);
         }
         return result;
@@ -245,22 +250,22 @@ public:
     }
 
     const NodeElement& getNodeLabel(size_t id) const override {
-        DEBUG_ASSERT(!removed_nodes.contains(id));
+        DEBUG_ASSERT(!removed_nodes.contains(static_cast<uint64_t>(id)));
         return FlexibleGraph<NodeElement, EdgeLabel>::nodeLabel.at(id);
     }
 
     virtual size_t addNewEdgeFromId(size_t src2, size_t dst2, const EdgeLabel& weight) override {
-        DEBUG_ASSERT(!removed_nodes.contains(src2));
-        DEBUG_ASSERT(!removed_nodes.contains(dst2));
+        DEBUG_ASSERT(!removed_nodes.contains(static_cast<uint64_t>(src2)));
+        DEBUG_ASSERT(!removed_nodes.contains(static_cast<uint64_t>(dst2)));
         return FlexibleGraph<NodeElement, EdgeLabel>::addNewEdgeFromId(src2, dst2, weight);
     }
 
     size_t nOutgoingEdges(size_t n) const {
         size_t count = 0;
-        if (removed_nodes.contains(n)) return count;
+        if (removed_nodes.contains(static_cast<uint64_t>(n))) return count;
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getOutgoingEdgesId(n)) {
             auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second;
-            if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge))) {
+            if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge)))) {
                 count++;
             }
         }
@@ -268,12 +273,12 @@ public:
     }
 
     virtual std::vector<std::pair<EdgeLabel, size_t>> outgoingEdges(size_t n) const override {
-        if (removed_nodes.contains(n)) return {};
+        if (removed_nodes.contains(static_cast<uint64_t>(n))) return {};
         std::vector<std::pair<EdgeLabel, size_t>> result;
         std::vector<std::pair<EdgeLabel, size_t>> outgoings;
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getOutgoingEdgesId(n)) {
             auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second;
-            if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge))) {
+            if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge)))) {
                 outgoings.emplace_back(FlexibleGraph<NodeElement, EdgeLabel>::costMap.at(edge),
                                        FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second);
             }
@@ -282,13 +287,13 @@ public:
     }
 
     virtual std::vector<size_t> outgoingEdgesWithMove(size_t n, const EdgeLabel& label) const {
-        if (removed_nodes.contains(n)) return {};
+        if (removed_nodes.contains(static_cast<uint64_t>(n))) return {};
         std::vector<size_t> outgoings;
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getOutgoingEdgesId(n)) {
             auto& orig = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge);
             auto& ref = orig.second;
             auto l = FlexibleGraph<NodeElement, EdgeLabel>::costMap.at(edge);
-            if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge)) && (l == label)) {
+            if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge))) && (l == label)) {
                 outgoings.emplace_back(FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second);
             }
         }
@@ -297,11 +302,11 @@ public:
 
     size_t nIngoingEdges(size_t n) const  {
         size_t count = 0;
-        if (removed_nodes.contains(n)) return count;
+        if (removed_nodes.contains(static_cast<uint64_t>(n))) return count;
         std::vector<std::pair<EdgeLabel, size_t>> outgoings;
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getIngoingEdgesId(n)) {
             auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).first;
-            if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge))) {
+            if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge)))) {
                 count++;
             }
         }
@@ -309,11 +314,11 @@ public:
     }
 
     virtual std::vector<std::pair<EdgeLabel, size_t>> ingoingEdges(size_t n) const override {
-        if (removed_nodes.contains(n)) return {};
+        if (removed_nodes.contains(static_cast<uint64_t>(n))) return {};
         std::vector<std::pair<EdgeLabel, size_t>> outgoings;
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getIngoingEdgesId(n)) {
             auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).first;
-            if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge))) {
+            if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge)))) {
                 outgoings.emplace_back(FlexibleGraph<NodeElement, EdgeLabel>::costMap.at(edge),
                                        FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).first);
             }
@@ -322,27 +327,27 @@ public:
     }
 
     bool isFinalNodeByID(size_t id) const {
-        return final_nodes.contains(id);
+        return final_nodes.contains(static_cast<uint64_t>(id));
     }
 
     bool isInitialNodeByID(size_t id) const {
-        return initial_nodes.contains(id);
+        return initial_nodes.contains(static_cast<uint64_t>(id));
     }
 
     void addToInitialNodesFromId(size_t node) {
-        initial_nodes.add((node));
+        initial_nodes.add(static_cast<uint64_t>(node));
     }
 
     void addToFinalNodesFromId(size_t node) {
-        final_nodes.add((node));
+        final_nodes.add(static_cast<uint64_t>(node));
     }
 
     void removeEdges(size_t src, size_t dst) {
         for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getOutgoingEdgesId(src)) {
-            if (removed_edges.contains(edge)) continue; // already removed
+            if (removed_edges.contains(static_cast<uint64_t>(edge))) continue; // already removed
             auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second;
-            if ((removed_nodes.contains(ref)) || (ref == dst)) {
-                removed_edges.add(edge);
+            if ((removed_nodes.contains(static_cast<uint64_t>(ref))) || (ref == dst)) {
+                removed_edges.add(static_cast<uint64_t>(edge));
             }
         }
     }
@@ -358,7 +363,7 @@ public:
     std::unordered_map<EdgeLabel, std::unordered_set<size_t>> Move(const std::unordered_set<size_t>& P) const {
         std::unordered_map<EdgeLabel, std::unordered_set<size_t>> reachable;
         for (const size_t& p : P) {
-            if (removed_nodes.contains(p)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(p))) continue;
             for (const std::pair<EdgeLabel, size_t>& cp: outgoingEdges(p)) {
                 reachable[cp.first].insert(cp.second);
             }
@@ -382,7 +387,7 @@ public:
             start = v.at(0);
             it++;
         }
-        if (!(final_nodes.contains(start))) {
+        if (!(final_nodes.contains(static_cast<uint64_t>(start)))) {
             std::cerr << ss.str() << std::endl;
             exit(1);
         } else {
@@ -393,7 +398,7 @@ public:
     std::unordered_set<size_t> Move(const std::unordered_set<size_t>& P, const EdgeLabel& given) {
         std::unordered_set<size_t> reachable;
         for (const size_t& p : P) {
-            if (removed_nodes.contains(p)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(p))) continue;
             for (const std::pair<EdgeLabel, size_t>& cp: outgoingEdges(p)) {
                 if (cp.first == given)
                     reachable.insert(cp.second);
@@ -405,7 +410,7 @@ public:
     std::unordered_set<size_t> Move2(const std::unordered_set<size_t>& P, const EdgeLabel& given) const {
         std::unordered_set<size_t> reachable;
         for (const size_t& p : P) {
-            if (removed_nodes.contains(p)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(p))) continue;
             for (const std::pair<EdgeLabel, size_t>& cp: outgoingEdges(p)) {
                 if (cp.first == given)
                     reachable.insert(cp.second);
@@ -417,7 +422,7 @@ public:
     std::unordered_map<EdgeLabel, std::unordered_set<size_t>> Move3(const std::unordered_set<size_t>& P) const {
         std::unordered_map<EdgeLabel, std::unordered_set<size_t>> reachable;
         for (const size_t& p : P) {
-            if (removed_nodes.contains(p)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(p))) continue;
             for (const std::pair<EdgeLabel, size_t>& cp: outgoingEdges(p)) {
                 reachable[cp.first].insert(cp.second);
             }
@@ -484,14 +489,14 @@ public:
             throw std::runtime_error("ERROR: for the java aligner, we shall have just one initial state!");
         }
         for (size_t node_id : actual_initial) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             os << "\tfake"  << " [style=invisible]" << std::endl;
         }
         for (uint64_t node_id : getNodeIds()) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             os << '\t' << node_id;
-            bool hasFinal = final_nodes.contains(node_id);
-            bool hasInitial = initial_nodes.contains(node_id);
+            bool hasFinal = final_nodes.contains(static_cast<uint64_t>(node_id));
+            bool hasInitial = initial_nodes.contains(static_cast<uint64_t>(node_id));
             if (hasFinal || hasInitial) {
                 os << " [";
                 if (hasInitial)
@@ -507,7 +512,7 @@ public:
             os << "\tfake"  << " -> " << node_id << " [style=bold]" << std::endl;
         }
         for (size_t node_id : getNodeIds()) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             for (const std::pair<EdgeLabel, int>& edge : outgoingEdges(node_id)) {
                 os << '\t' << node_id << " -> " << edge.second;
                 os << " [label=" << edge.first << "]";
@@ -522,14 +527,14 @@ public:
         /*"    rankdir=LR;\n"
         "    size=\"8,5\"\n";*/
         for (size_t node_id : initial_nodes) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             os << "\tfake" << node_id << " [style=invisible]" << std::endl;
         }
         for (uint64_t node_id : getNodeIds()) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             os << '\t' << node_id;
-            bool hasFinal = final_nodes.contains(node_id);
-            bool hasInitial = initial_nodes.contains(node_id);
+            bool hasFinal = final_nodes.contains(static_cast<uint64_t>(node_id));
+            bool hasInitial = initial_nodes.contains(static_cast<uint64_t>(node_id));
             os << " [";
             if (hasFinal || hasInitial) {
                 if (hasInitial)
@@ -545,23 +550,23 @@ public:
                 os << "label=\"" << getNodeLabel(node_id) <<"\"";
             os << "]" << std::endl;
             /*std::string shape = "circle";
-            if (final_nodes.contains(node_id)) {
+            if (final_nodes.contains(static_cast<uint64_t>(node_id))) {
                 shape = "doublecircle";
             }
             os << "node [shape = " << shape << ", label=\"" << getNodeLabel(node_id) << "\", fontsize=10] q" << node_id << ";\n";
-            if (initial_nodes.contains(node_id)) {
+            if (initial_nodes.contains(static_cast<uint64_t>(node_id))) {
                 os << "node [shape = point] s" << node_id << ";\n";
             }*/
         }
         for (size_t node_id : initial_nodes) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             os << "\tfake" << node_id << " -> " << node_id << " [style=bold]" << std::endl;
         }
         for (size_t node_id : getNodeIds()) {
-            if (removed_nodes.contains(node_id)) continue;
+            if (removed_nodes.contains(static_cast<uint64_t>(node_id))) continue;
             for (const size_t & edge : FlexibleGraph<NodeElement, EdgeLabel>::g.getOutgoingEdgesId(node_id)) {
                 auto& ref = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second;
-                if ((!removed_nodes.contains(ref)) && (!removed_edges.contains(edge))) {
+                if ((!removed_nodes.contains(static_cast<uint64_t>(ref))) && (!removed_edges.contains(static_cast<uint64_t>(edge)))) {
                     os << '\t' << node_id << " -> " << FlexibleGraph<NodeElement, EdgeLabel>::g.edge_from_id(edge).second;
                     if (!ignoreEdgeLabels)
                         os << " [label=\"" << FlexibleGraph<NodeElement, EdgeLabel>::costMap.at(edge) << /*"_" << edge <<*/ "\"]";
@@ -582,18 +587,18 @@ public:
         roaring::Roaring64Map visited_src_dst = initial_nodes;
         visited_src_dst -= removed_nodes;
         for (size_t start : final_nodes) {
-            if (!removed_nodes.contains(start)) {
+            if (!removed_nodes.contains(static_cast<uint64_t>(start))) {
                 std::stack<size_t> stack;
                 stack.push(start);
                 while (!stack.empty()) {
                     size_t s = stack.top();
                     stack.pop();
-                    visited_src_dst.add(s);
+                    visited_src_dst.add(static_cast<uint64_t>(s));
                     auto it = FlexibleGraph<NodeElement, EdgeLabel>::g.ingoing_edges.find(s);
                     if (it != FlexibleGraph<NodeElement, EdgeLabel>::g.ingoing_edges.end())
                     for (size_t edge_id: it->second) {
                         size_t src = FlexibleGraph<NodeElement, EdgeLabel>::g.edge_ids.at(edge_id).first;
-                        if (!visited_src_dst.contains(src))
+                        if (!visited_src_dst.contains(static_cast<uint64_t>(src)))
                             stack.push(src);
                     }
                 }
@@ -601,7 +606,8 @@ public:
             }
         }
         roaring::Roaring64Map candidatesForRemoval;
-        candidatesForRemoval.addRangeClosed(0, FlexibleGraph<NodeElement, EdgeLabel>::g.V_size-1);
+        if (FlexibleGraph<NodeElement, EdgeLabel>::g.V_size > 0)
+            candidatesForRemoval.addRangeClosed(static_cast<uint64_t>(0), static_cast<uint64_t>(FlexibleGraph<NodeElement, EdgeLabel>::g.V_size-1));
         candidatesForRemoval -= visited_src_dst;
         final_nodes -= candidatesForRemoval;
         removed_nodes |= candidatesForRemoval;
@@ -669,10 +675,10 @@ public:
             size_t neueId = result.addNewNodeWithLabel(nodeId);
             node_id_conversion.emplace(nodeId, neueId);
 
-            if (initial_nodes.contains(nodeId)) {
+            if (initial_nodes.contains(static_cast<uint64_t>(nodeId))) {
                 result.addNewEdgeFromId(start, neueId, nodeLabel);
             }
-            if (final_nodes.contains(nodeId)) {
+            if (final_nodes.contains(static_cast<uint64_t>(nodeId))) {
                 result.addToFinalNodesFromId(neueId);
             }
         }
@@ -740,9 +746,9 @@ public:
             outgoingEdges[arcSrc].emplace_back(arcId);
             int arcIdAsNode = result.addNewNodeWithLabel(FlexibleGraph<NodeElement, EdgeLabel>::getEdgeLabel(arcId));
             edgeToNewNodeMap.emplace(arcId, arcIdAsNode);
-            if (initial_nodes.contains(arcSrc))
+            if (initial_nodes.contains(static_cast<uint64_t>(arcSrc)))
                 result.addToInitialNodesFromId(arcIdAsNode);
-            if (final_nodes.contains(arc.second))
+            if (final_nodes.contains(static_cast<uint64_t>(arc.second)))
                 result.addToFinalNodesFromId(arcIdAsNode);
         }
         for (size_t arcId : getEdgeIds()) {

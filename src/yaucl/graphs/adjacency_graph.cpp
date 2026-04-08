@@ -154,12 +154,12 @@ void adjacency_graph_inv_DFSUtil(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         auto it = ag.ingoing_edges.find(src);
         if (it != ag.ingoing_edges.end()) {
             for (size_t edge_id: it->second) {
                 size_t src = ag.edge_ids.at(edge_id).first;
-                if ((!visited.contains(src)) && (!ag.removed_nodes.contains(src)))
+                if ((!visited.contains(static_cast<uint64_t>(src))) && (!ag.removed_nodes.contains(src)))
                     stack.push(src);
             }
         }
@@ -176,10 +176,10 @@ void adjacency_graph_DFSUtil(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         for (size_t edge_id: ag.nodes.at(src)) {
             size_t dst = ag.edge_ids.at(edge_id).second;
-            if ((!visited.contains(dst)) && (!ag.removed_nodes.contains(dst)))
+            if ((!visited.contains(static_cast<uint64_t>(dst))) && (!ag.removed_nodes.contains(dst)))
                 stack.push(dst);
         }
     }
@@ -196,11 +196,11 @@ void adjacency_graph_DFSUtil_with_edge_prop(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         for (size_t edge_id: ag.nodes.at(src)) {
             if (!edgeProp(edge_id)) continue;
             size_t dst = ag.edge_ids.at(edge_id).second;
-            if ((!visited.contains(dst)) && (!ag.removed_nodes.contains(dst)))
+            if ((!visited.contains(static_cast<uint64_t>(dst))) && (!ag.removed_nodes.contains(dst)))
                 stack.push(dst);
         }
     }
