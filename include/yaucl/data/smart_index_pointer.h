@@ -24,7 +24,11 @@
 #ifndef VARSORTER_SMART_INDEX_POINTER_H
 #define VARSORTER_SMART_INDEX_POINTER_H
 
+#ifdef __linux__
 #include <bits/types/struct_iovec.h>
+#else
+#include <sys/uio.h>
+#endif
 #include <cstdint>
 //#include "index.h"
 #include "smart_malloc.h"

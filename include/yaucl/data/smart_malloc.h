@@ -23,7 +23,11 @@
 #ifndef VARSORTER_SMART_MALLOC_H
 #define VARSORTER_SMART_MALLOC_H
 
+#ifdef __linux__
 #include <bits/types/struct_iovec.h>
+#else
+#include <sys/uio.h>
+#endif
 #include <cstring>
 #include <iostream>
 #include "new_iovec.h"

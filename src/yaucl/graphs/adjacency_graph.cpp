@@ -73,7 +73,7 @@ void adjacency_graph::DFSUtil(size_t src, std::unordered_set<size_t> &visited) {
     visited.insert(src);
     for (size_t edge_id : nodes.at(src)) {
         size_t dst = edge_ids.at(edge_id).second;
-        if (!visited.contains(dst))
+        if (!visited.contains(static_cast<uint64_t>(dst)))
             DFSUtil(dst, visited);
     }
 }
@@ -118,7 +118,7 @@ adjacency_graph::printAllPathsUtil(size_t u, size_t d, std::unordered_set<size_t
     } else {
         for (size_t edge_id : nodes.at(u)) {
             size_t dst = edge_ids.at(edge_id).second;
-            if ((!removed_nodes.contains(dst)) && (!visited.contains(dst)) && (!global.contains(dst)))
+            if ((!removed_nodes.contains(dst)) && (!visited.contains(static_cast<uint64_t>(dst))) && (!global.contains(dst)))
                 printAllPathsUtil(dst, d, visited, path, path_index, visited_src_dst, global);
         }
     }
@@ -154,12 +154,12 @@ void adjacency_graph_inv_DFSUtil(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         auto it = ag.ingoing_edges.find(src);
         if (it != ag.ingoing_edges.end()) {
             for (size_t edge_id: it->second) {
                 size_t src = ag.edge_ids.at(edge_id).first;
-                if ((!visited.contains(src)) && (!ag.removed_nodes.contains(src)))
+                if ((!visited.contains(static_cast<uint64_t>(src))) && (!ag.removed_nodes.contains(src)))
                     stack.push(src);
             }
         }
@@ -176,10 +176,10 @@ void adjacency_graph_DFSUtil(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         for (size_t edge_id: ag.nodes.at(src)) {
             size_t dst = ag.edge_ids.at(edge_id).second;
-            if ((!visited.contains(dst)) && (!ag.removed_nodes.contains(dst)))
+            if ((!visited.contains(static_cast<uint64_t>(dst))) && (!ag.removed_nodes.contains(dst)))
                 stack.push(dst);
         }
     }
@@ -196,11 +196,11 @@ void adjacency_graph_DFSUtil_with_edge_prop(size_t src,
     while (!stack.empty()) {
         size_t s = stack.top();
         stack.pop();
-        visited.add(s);
+        visited.add(static_cast<uint64_t>(s));
         for (size_t edge_id: ag.nodes.at(src)) {
             if (!edgeProp(edge_id)) continue;
             size_t dst = ag.edge_ids.at(edge_id).second;
-            if ((!visited.contains(dst)) && (!ag.removed_nodes.contains(dst)))
+            if ((!visited.contains(static_cast<uint64_t>(dst))) && (!ag.removed_nodes.contains(dst)))
                 stack.push(dst);
         }
     }
@@ -432,7 +432,7 @@ void DFSUtil(const adjacency_graph *graph, size_t src, std::unordered_set<size_t
 
     for (size_t edge_id : graph->nodes.at(src)) {
         size_t dst = graph->edge_ids.at(edge_id).second;
-        if (!visited.contains(dst))
+        if (!visited.contains(static_cast<uint64_t>(dst)))
             DFSUtil(graph, dst, visited);
     }
 }
@@ -454,7 +454,7 @@ void printAllPathsUtil(const adjacency_graph *graph, size_t u, size_t d, std::un
     } else {
         for (size_t edge_id : graph->nodes.at(u)) {
             size_t dst = graph->edge_ids.at(edge_id).second;
-            if ((!visited.contains(dst)) && (!global.contains(dst)))
+            if ((!visited.contains(static_cast<uint64_t>(dst))) && (!global.contains(dst)))
                 printAllPathsUtil(graph, dst, d, visited, path, path_index, visited_src_dst, global);
         }
     }

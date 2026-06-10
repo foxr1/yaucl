@@ -4,7 +4,7 @@
 
 #include "yaucl/data/new_iovec.h"
 
-new_iovec::new_iovec(void *memory, size_t size) : iov_base(memory), iov_len(size) {}
+new_iovec::new_iovec(void *memory, uint_fast64_t size) : iov_base(memory), iov_len(size) {}
 
 std::istringstream new_iovec::stream() {
     std::string elem2{(char*)iov_base,iov_len};

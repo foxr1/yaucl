@@ -46,12 +46,12 @@ namespace std {
 #include <array>
 
 namespace std {
-    template <typename T, size_t size>
-    struct hash<std::array<T, size>> {
-        std::size_t operator()(const std::array<T, size>& k) const
+    template <typename T, size_t ArraySize>
+    struct hash<std::array<T, ArraySize>> {
+        std::size_t operator()(const std::array<T, ArraySize>& k) const
         {
             size_t init = 31;
-            for (size_t i = 0; i<size; i++)
+            for (size_t i = 0; i<ArraySize; i++)
                 init = yaucl::hashing::hash_combine<T>(init, k.at(i));
             return init;
         }

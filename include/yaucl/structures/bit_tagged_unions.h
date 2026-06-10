@@ -3,6 +3,9 @@
 #define KNOBAB_BIT_TAGGED_UNIONS_H
 
 #include <cstdint>
+#ifdef __APPLE__
+#define IS_LITTLE_ENDIAN
+#endif
 #ifdef  _WIN64
 #define WINDOWS
 #include <Windows.h>

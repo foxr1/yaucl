@@ -15,7 +15,7 @@ ssize_t connected_components(const adjacency_graph &input,
         roaring::Roaring64Map visited;
         assert(!set.isEmpty());
         for (size_t src : set) {
-            if ((!visited.contains(src)) && (!visitedGlobal.contains(src))) {
+            if ((!visited.contains(static_cast<uint64_t>(src))) && (!visitedGlobal.contains(static_cast<uint64_t>(src)))) {
                 vertex_id_to_connected_component[src] = result.size();
                 adjacency_graph_DFSUtil(src, input, visited);
             }
@@ -33,12 +33,12 @@ ssize_t connected_components(const adjacency_graph &input,
         }
     }
     roaring::Roaring64Map remaining;
-    remaining.addRange(0, input.V_size);
+    remaining.addRange(0, static_cast<uint64_t>(input.V_size));
     remaining -= visitedGlobal;
     if (!remaining.isEmpty()) {
         missing_starting_from = (ssize_t)result.size();
         for (size_t src : remaining) {
-            if (!visitedGlobal.contains(src)) {
+            if (!visitedGlobal.contains(static_cast<uint64_t>(src))) {
                 adjacency_graph_DFSUtil(src, input, visitedGlobal);
                 result.emplace_back(visitedGlobal);
             }
@@ -59,18 +59,18 @@ ssize_t connected_components(const adjacency_graph &input,
     ssize_t missing_starting_from;
     missing_starting_from = -1;
     for (size_t src : starting) {
-        if (!visited.contains(src)) {
+        if (!visited.contains(static_cast<uint64_t>(src))) {
             adjacency_graph_DFSUtil(src, input, visited);
             result.emplace_back(visited);
         }
     }
     roaring::Roaring64Map remaining;
-    remaining.addRange(0, input.V_size);
+    remaining.addRange(0, static_cast<uint64_t>(input.V_size));
     remaining -= visited;
     if (!remaining.isEmpty()) {
         missing_starting_from = (ssize_t)result.size();
         for (size_t src : remaining) {
-            if (!visited.contains(src)) {
+            if (!visited.contains(static_cast<uint64_t>(src))) {
                 adjacency_graph_DFSUtil(src, input, visited);
                 result.emplace_back(visited);
             }
@@ -95,7 +95,7 @@ void connected_components(const adjacency_graph &input,
     result.clear();
     roaring::Roaring64Map orig = visited;
     for (size_t u = 0, N = input.V_size; u<N; u++) {
-        if (!visited.contains(u)) {
+        if (!visited.contains(static_cast<uint64_t>(u))) {
             adjacency_graph_DFSUtil(u, input, visited);
             result.emplace_back(visited);
         }
@@ -125,8 +125,8 @@ void connected_components_with_edge_prop(const adjacency_graph &input,
     result.clear();
     roaring::Roaring64Map orig = visited;
     for (size_t u = 0, N = input.V_size; u<N; u++) {
-        if (!visited.contains(u)) {
-            adjacency_graph_DFSUtil_with_edge_prop(u, input, visited);
+        if (!visited.contains(static_cast<uint64_t>(u))) {
+            adjacency_graph_DFSUtil_with_edge_prop(u, input, visited, edgeProp);
             result.emplace_back(visited);
         }
     }
