@@ -14,15 +14,20 @@
 [submodule "submodules/rapidcsv"]
 	path = submodules/rapidcsv
 	url = https://github.com/d99kris/rapidcsv
+	update = none
 [submodule "submodules/date"]
 	path = submodules/date
 	url = https://github.com/HowardHinnant/date
+	update = none
 [submodule "submodules/eigen"]
 	path = submodules/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+	update = none
 [submodule "submodules/l-bfgs-b"]
 	path = submodules/l-bfgs-b
 	url = https://github.com/LogDS/l-bfgs-b
+	update = none
 [submodule "submodules/rocksdb"]
 	path = submodules/rocksdb
 	url = https://github.com/logds/rocksdb/
+	update = none
